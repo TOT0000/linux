@@ -14,6 +14,7 @@ import matplotlib
 matplotlib.use('Agg')  # 非互動後端避免開啟GUI視窗
 import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse, Circle, Arc
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from PIL import Image
 from threading import Thread
 from flask import Flask, Response, request
@@ -107,6 +108,8 @@ class TypeFly:
         self.archive_enabled = True
         self.selected_worker_move_step = 0.5
         self.selected_worker_turn_step = 15.0
+        self.drone_icon = self._load_icon_asset("drone.png")
+        self.obstacle_icon = self._load_icon_asset("obstacle.png")
 
         # 狀態資料
         self.anchor_count = 0
@@ -150,7 +153,6 @@ class TypeFly:
             "is_running": False,
             "objective_completed": False,
         }
-
         # 浮動提示 internal state
         self._temp_message = ""
         self._temp_message_expire = 0.0
@@ -247,143 +249,73 @@ class TypeFly:
                         self.user_turn_cw_btn = gr.Button("Turn Clockwise", elem_classes="user-move-btn")
             self.scenario_status = gr.Markdown(value="")
 
-            self.baseline_scene_apply_btn.click(
-                fn=self.apply_baseline_scene,
-                inputs=[self.baseline_scene_selector],
-                outputs=[self.scenario_status],
-            )
-            self.reset_system_btn.click(
-                fn=self.reset_system_state,
-                inputs=[],
-                outputs=[self.scenario_status],
-            )
-            self.framework_mode_selector.change(
-                fn=self.set_framework_mode,
-                inputs=[self.framework_mode_selector],
-                outputs=[self.scenario_status],
-            )
-            self.baseline_selector.change(
-                fn=self.set_selected_baseline,
-                inputs=[self.baseline_selector],
-                outputs=[self.scenario_status],
-            )
-            self.save_run_btn.click(
-                fn=self.save_last_run,
-                inputs=[],
-                outputs=[self.scenario_status, self.postrun_summary],
-            )
-            self.discard_run_btn.click(
-                fn=self.discard_last_run,
-                inputs=[],
-                outputs=[self.scenario_status, self.postrun_summary],
-            )
-            self.worker_selector.change(
-                fn=self.select_controlled_worker,
-                inputs=[self.worker_selector],
-                outputs=[self.scenario_status],
-            )
-            self.user_move_step.change(
-                fn=self.set_worker_move_step,
-                inputs=[self.user_move_step],
-                outputs=[],
-            )
-            self.user_turn_step.change(
-                fn=self.set_worker_turn_step,
-                inputs=[self.user_turn_step],
-                outputs=[],
-            )
+            self.baseline_scene_apply_btn.click(fn=self.apply_baseline_scene, inputs=[self.baseline_scene_selector], outputs=[self.scenario_status])
+            self.reset_system_btn.click(fn=self.reset_system_state, inputs=[], outputs=[self.scenario_status])
+            self.framework_mode_selector.change(fn=self.set_framework_mode, inputs=[self.framework_mode_selector], outputs=[self.scenario_status])
+            self.baseline_selector.change(fn=self.set_selected_baseline, inputs=[self.baseline_selector], outputs=[self.scenario_status])
+            self.save_run_btn.click(fn=self.save_last_run, inputs=[], outputs=[self.scenario_status, self.postrun_summary])
+            self.discard_run_btn.click(fn=self.discard_last_run, inputs=[], outputs=[self.scenario_status, self.postrun_summary])
+            self.worker_selector.change(fn=self.select_controlled_worker, inputs=[self.worker_selector], outputs=[self.scenario_status])
+            self.user_move_step.change(fn=self.set_worker_move_step, inputs=[self.user_move_step], outputs=[])
+            self.user_turn_step.change(fn=self.set_worker_turn_step, inputs=[self.user_turn_step], outputs=[])
+            self.user_move_forward_btn.click(fn=self.move_worker_forward, inputs=[], outputs=[self.scenario_status])
+            self.user_move_backward_btn.click(fn=self.move_worker_backward, inputs=[], outputs=[self.scenario_status])
+            self.user_move_left_btn.click(fn=self.move_worker_left, inputs=[], outputs=[self.scenario_status])
+            self.user_move_right_btn.click(fn=self.move_worker_right, inputs=[], outputs=[self.scenario_status])
+            self.user_turn_cw_btn.click(fn=self.turn_worker_cw, inputs=[], outputs=[self.scenario_status])
+            self.user_turn_ccw_btn.click(fn=self.turn_worker_ccw, inputs=[], outputs=[self.scenario_status])
 
-            self.user_move_forward_btn.click(
-                fn=self.move_worker_forward,
-                inputs=[],
-                outputs=[self.scenario_status],
-            )
-            self.user_move_backward_btn.click(
-                fn=self.move_worker_backward,
-                inputs=[],
-                outputs=[self.scenario_status],
-            )
-            self.user_move_left_btn.click(
-                fn=self.move_worker_left,
-                inputs=[],
-                outputs=[self.scenario_status],
-            )
-            self.user_move_right_btn.click(
-                fn=self.move_worker_right,
-                inputs=[],
-                outputs=[self.scenario_status],
-            )
-            self.user_turn_cw_btn.click(
-                fn=self.turn_worker_cw,
-                inputs=[],
-                outputs=[self.scenario_status],
-            )
-            self.user_turn_ccw_btn.click(
-                fn=self.turn_worker_ccw,
-                inputs=[],
-                outputs=[self.scenario_status],
-            )
-
-            # floating message refresher
             self.message_timer = Timer(value=0.5)
-            self.message_timer.tick(
-                fn=self._refresh_temp_message,
-                inputs=[],
-                outputs=[self.message_markdown]
-            )
+            self.message_timer.tick(fn=self._refresh_temp_message, inputs=[], outputs=[self.message_markdown])
 
             with gr.Row():
                 with gr.Column(scale=2, min_width=320):
-                    self.anchor_3d_plot = gr.Image(
-                        value=self.create_blank_plot("Anchor 3D Layout", "X (m)", "Y (m)", xlim=(0, 12), ylim=(0, 12), figsize=(5, 4)),
-                        label="Anchor 3D Panel",
-                        height=360,
-                    )
+                    self.anchor_3d_plot = gr.Image(value=self.create_blank_plot("Anchor 3D Layout", "X (m)", "Y (m)", xlim=(0, 12), ylim=(0, 12), figsize=(5, 4)), label="Anchor 3D Panel", height=360)
                     self.toggle_error_ellipse = gr.Checkbox(label="Show variance error ellipse", value=False)
                     self.toggle_raw_estimate = gr.Checkbox(label="Debug: show raw estimate", value=False)
                 with gr.Column(scale=4, min_width=520):
-                    self.global_xy_plot = gr.Image(
-                        value=self.create_blank_plot(
-                            "Benchmark Workspace XY",
-                            "X (m)",
-                            "Y (m)",
-                            xlim=(0, 12),
-                            ylim=(0, 12),
-                            figsize=(10, 8),
-                        ),
-                        label="Main XY Workspace",
-                        height=640,
-                    )
+                    self.global_xy_plot = gr.Image(value=self.create_blank_plot("Benchmark Workspace XY", "X (m)", "Y (m)", xlim=(0, 12), ylim=(0, 12), figsize=(10, 8)), label="Main XY Workspace", height=640)
                 with gr.Column(scale=2, min_width=300):
                     self.status_markdown = gr.Markdown(value="### Status\nWaiting for live data...")
                     self.entity_markdown = gr.Markdown(value="### Entity positions\nWaiting for live data...")
-
             with gr.Row():
                 self.xy_plot = gr.Image(value=self.create_blank_plot("Local XY", "X (m)", "Y (m)", xlim=(0, 12), ylim=(0, 12), figsize=(5, 4)), label="Local XY", height=320)
                 self.x_plot = gr.Image(value=self.create_sequence_plot("worker_1 3s Predicted Collision Probability", "Sample", "P(predicted collision)", xlim=(0, 1), ylim=(0, 1)), label="worker_1 P(predicted collision)", height=320)
                 self.y_plot = gr.Image(value=self.create_sequence_plot("worker_2 3s Predicted Collision Probability", "Sample", "P(predicted collision)", xlim=(0, 1), ylim=(0, 1)), label="worker_2 P(predicted collision)", height=320)
                 self.z_plot = gr.Image(value=self.create_sequence_plot("worker_3 3s Predicted Collision Probability", "Sample", "P(predicted collision)", xlim=(0, 1), ylim=(0, 1)), label="worker_3 P(predicted collision)", height=320)
-
             self.counter = gr.State(0)
             self.timer = Timer(value=0.08)
-            self.timer.tick(
-                fn=self.update_and_step,
-                inputs=[self.counter, self.toggle_error_ellipse, self.toggle_raw_estimate],
-                outputs=[
-                    self.anchor_3d_plot,
-                    self.global_xy_plot,
-                    self.xy_plot,
-                    self.x_plot,
-                    self.y_plot,
-                    self.z_plot,
-                    self.counter,
-                    self.status_markdown,
-                    self.entity_markdown,
-                    self.postrun_summary,
-                ]
-            )
-
+            self.timer.tick(fn=self.update_and_step, inputs=[self.counter, self.toggle_error_ellipse, self.toggle_raw_estimate], outputs=[self.anchor_3d_plot, self.global_xy_plot, self.xy_plot, self.x_plot, self.y_plot, self.z_plot, self.counter, self.status_markdown, self.entity_markdown, self.postrun_summary])
             self.chat = gr.ChatInterface(self.process_message, fill_height=False)
+
+    def _load_icon_asset(self, filename: str):
+        icon_path = os.path.join(CURRENT_DIR, "assets", filename)
+        try:
+            with Image.open(icon_path) as img:
+                return np.asarray(img.convert("RGBA"))
+        except Exception as exc:
+            print_debug(f"[UI-PLOT] icon load failed for {icon_path}: {exc}")
+            return None
+
+    def _draw_icon_or_circle(self, ax, center_xy, radius_m, icon_rgba, fallback_kwargs, label_text):
+        x, y = float(center_xy[0]), float(center_xy[1])
+        rendered_icon = False
+        if icon_rgba is not None:
+            try:
+                target_diameter_px = 2.0 * float(radius_m) * float(ax.bbox.width) / max(ax.get_xlim()[1] - ax.get_xlim()[0], 1e-6)
+                zoom = target_diameter_px / float(icon_rgba.shape[1])
+                if zoom > 0:
+                    icon = OffsetImage(icon_rgba, zoom=zoom)
+                    ab = AnnotationBbox(icon, (x, y), frameon=False, pad=0.0, box_alignment=(0.5, 0.5), zorder=6)
+                    ax.add_artist(ab)
+                    rendered_icon = True
+            except Exception as exc:
+                print_debug(f"[UI-PLOT] icon render fallback: {exc}")
+        if not rendered_icon:
+            ax.add_patch(Circle((x, y), radius_m, **fallback_kwargs))
+        label_offset = radius_m + 0.24
+        ax.text(x, y - label_offset, label_text, fontsize=8, color="#000000", ha="center", va="top", zorder=7)
+
 
     def show_temporary_message(self, text, duration=3):
         self._temp_message = text
@@ -1281,7 +1213,14 @@ class TypeFly:
                 label="UAV est trajectory",
             )
         if drone_gt is not None:
-            ax_xy.add_patch(Circle((drone_gt[0], drone_gt[1]), UAV_RADIUS_M, fill=False, edgecolor="#0B57D0", linewidth=2.0, label="UAV true"))
+            self._draw_icon_or_circle(
+                ax_xy,
+                drone_gt,
+                UAV_RADIUS_M,
+                self.drone_icon,
+                {"fill": False, "edgecolor": "#0B57D0", "linewidth": 2.0},
+                "UAV",
+            )
         if drone_est is not None:
             ax_xy.add_patch(Circle((drone_est[0], drone_est[1]), UAV_RADIUS_M, fill=False, edgecolor="#8AB4F8", linewidth=1.6, linestyle="--", label="UAV bias-corrected"))
         if drone_gt is not None and drone_est is not None:
@@ -1293,17 +1232,16 @@ class TypeFly:
             est_xy = worker.get("est_xy_bias_corrected")
             ui_xy = worker.get("ui_xy") or est_xy or gt_xy
             wid = worker.get("id")
-            if gt_xy is not None:
-                ax_xy.add_patch(Circle((gt_xy[0], gt_xy[1]), WORKER_RADIUS_M, fill=False, edgecolor="#7B1FA2", linewidth=1.8))
             if ui_xy is not None:
-                ax_xy.add_patch(Circle((ui_xy[0], ui_xy[1]), WORKER_RADIUS_M, fill=False, edgecolor="#CE93D8", linewidth=1.3, linestyle="--"))
-                ax_xy.text(ui_xy[0] + 0.08, ui_xy[1] + 0.08, str(wid), fontsize=8, color="#4A148C")
-                heading = float(worker.get("heading_yaw_rad", 0.0))
-                arrow_len = 0.45
-                wx, wy = float(ui_xy[0]), float(ui_xy[1])
-                wdx = arrow_len * float(math.cos(heading))
-                wdy = arrow_len * float(math.sin(heading))
-                ax_xy.arrow(wx, wy, wdx, wdy, head_width=0.12, head_length=0.14, color="#6A1B9A", linewidth=1.2, length_includes_head=True, zorder=4)
+                obstacle_label = str(wid).replace("worker_", "obstacle_")
+                self._draw_icon_or_circle(
+                    ax_xy,
+                    ui_xy,
+                    WORKER_RADIUS_M,
+                    self.obstacle_icon,
+                    {"fill": False, "edgecolor": "#CE93D8", "linewidth": 1.3, "linestyle": "--"},
+                    obstacle_label,
+                )
             if gt_xy is not None and ui_xy is not None:
                 ax_xy.plot([gt_xy[0], ui_xy[0]], [gt_xy[1], ui_xy[1]], color="#8E24AA", linewidth=0.7, alpha=0.8)
             if show_raw_estimate and worker.get("est_xy_raw") is not None:
@@ -1338,17 +1276,6 @@ class TypeFly:
         updated_path = snapshot.get("updated_path") or []
         if len(updated_path) >= 2:
             ax_xy.plot([p[0] for p in updated_path], [p[1] for p in updated_path], color="#1565C0", linestyle="-", linewidth=1.7, label="Current path")
-
-        drone_for_heading = positions.get("drone_gt") or positions.get("drone_est")
-        yaw_rad = float(snapshot.get("drone_yaw_rad") or 0.0) if snapshot else 0.0
-        if drone_for_heading is not None:
-            hx = float(drone_for_heading[0])
-            hy = float(drone_for_heading[1])
-            arrow_len = 0.55
-            dx = arrow_len * float(math.cos(yaw_rad))
-            dy = arrow_len * float(math.sin(yaw_rad))
-            ax_xy.arrow(hx, hy, dx, dy, head_width=0.16, head_length=0.18, color="#0B57D0", linewidth=1.6, length_includes_head=True, zorder=5)
-            ax_xy.text(hx + dx + 0.05, hy + dy + 0.05, "Heading", fontsize=8, color="#0B57D0")
 
         ax_xy.set_xlim(*xlim)
         ax_xy.set_ylim(*ylim)
