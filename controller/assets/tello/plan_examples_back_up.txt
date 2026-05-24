@@ -1,0 +1,2 @@
+Deprecated backup examples removed for one-shot low-level planning mode.
+Refer to plan_examples.txt for current completion-oriented MiniSpec examples.

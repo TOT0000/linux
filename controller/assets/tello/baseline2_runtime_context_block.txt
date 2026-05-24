@@ -1,0 +1,5 @@
+Baseline 2 runtime context (periodic-infoaware):
+- Use MiniSpec actions: gc, mf, mb, ml, mr, tc, tu, d, lo.
+- Use predicted_collision_probability (3-second horizon) with UAV-worker geometry.
+- Per-worker probabilities and dominant risky worker may refine avoidance sizing.
+- Keep route efficient when future risk is low.

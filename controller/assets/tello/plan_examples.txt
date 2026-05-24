@@ -1,0 +1,41 @@
+Example A (TypeFly initial planning, low risk + geometry clear -> efficiency-first ordering)
+Scene:
+- active zones: zone_A
+- active checkpoints: A1, A2, A3, A4
+- checkpoint coords: A1=(1.4,10.6), A2=(4.6,10.6), A3=(1.4,7.8), A4=(4.6,7.8)
+- UAV est: (4.8, 8.1, 1.2)
+- workers: worker_1=(1.0,11.2), worker_2=(0.8,7.2), worker_3=(5.8,11.2)
+- predicted_collision_probability=0.120
+Task: [A] Complete zone_A search.
+Rationale: Low risk + clear geometry permits efficiency-first route from current UAV position. Prefer smoother shorter sequence near UAV first; avoid fixed lexical order.
+Response: lo('initial efficient route from current geometry');gc('A4');d(2.0);gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+
+Example B (TypeFly replan continuation, high risk -> larger conservative avoidance then resume remaining)
+Scene:
+- active zones: zone_A
+- active checkpoints: A1, A2, A3, A4
+- completed checkpoints: A4, A2
+- remaining checkpoints: A1, A3
+- current target checkpoint: A1
+- dominant risky worker: worker_2
+- UAV est: (3.9, 9.8, 1.2)
+- worker_2 est: (3.7, 9.5)
+- predicted_collision_probability=0.740
+Task: [A] Replan and finish remaining checkpoints in zone_A.
+Rationale: Replan continuation (>0.7). First perform larger conservative detour because risk + proximity are high, then continue unfinished checkpoints only.
+Response: lo('replan high-risk detour before remaining checkpoints');mr(1.0);mb(0.8);tu(25);d(0.5);gc('A1');d(2.0);gc('A3');d(2.0);
+
+Example C (Agent low-risk style reference)
+Situation: workers exist but all keep clear spacing; collision risk low.
+Expected style: choose smoother/shorter next subgoal from UAV position, minimal detour, efficient progress.
+Action style example: go_checkpoint("A4");delay(0.5);
+
+Example D (Agent high-risk style reference)
+Situation: UAV and dominant risky worker are geometrically close; collision risk high.
+Expected style: output multi-skill recovery segment first, then resume mission progression.
+Action style example: move_left(0.9);move_backward(0.6);turn_cw(20);delay(0.4);
+
+Example E (Agent low-but-suspicious risk style reference)
+Situation: collision probability not high, but geometry suggests potential near-pass conflict.
+Expected style: small preventive avoidance, avoid over-conservative long detour.
+Action style example: move_right(0.3);turn_ccw(10);delay(0.3);

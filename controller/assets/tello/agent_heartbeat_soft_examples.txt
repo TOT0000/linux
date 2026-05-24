@@ -1,0 +1,71 @@
+Example S1 (Soft heartbeat: continue current plan under low future risk)
+Task: Complete zone_A search.
+Mission original plan: lo('initial efficiency-first route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Current active plan: lo('initial efficiency-first route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Latest full replan response (if any): none
+Full replans already used: 0 / 8
+Completed checkpoints: ["A4"]
+Unfinished checkpoints: ["A1","A2","A3"]
+UAV position: (4.5, 8.3, 1.2)
+UAV heading: 10.0 deg
+Worker positions: worker_1=(1.1,11.0), worker_2=(0.9,7.2), worker_3=(5.8,11.1)
+predicted_collision_probability over the next 3 seconds: 0.120
+dominant risky worker: worker_3
+Current executing plan: lo('initial efficiency-first route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Queue progress: next checkpoint is A2
+Execution history: A4 completed successfully
+Response(JSON): {"response":"continue","reason":"Future 3-second risk is low and the current route remains acceptable.","plan":""}
+
+Example S2 (Soft heartbeat: proactive replan under suspicious future geometry)
+Task: Complete zone_A search.
+Mission original plan: lo('initial efficiency-first route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Current active plan: lo('initial efficiency-first route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Latest full replan response (if any): none
+Full replans already used: 1 / 8
+Completed checkpoints: ["A4"]
+Unfinished checkpoints: ["A1","A2","A3"]
+UAV position: (4.4, 8.5, 1.2)
+UAV heading: 12.0 deg
+Worker positions: worker_1=(4.7,9.0), worker_2=(0.9,7.2), worker_3=(5.8,11.1)
+predicted_collision_probability over the next 3 seconds: 0.260
+dominant risky worker: worker_1
+Current executing plan: lo('initial efficiency-first route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Queue progress: next checkpoint is A2
+Execution history: A4 completed successfully
+Response(JSON): {"response":"full_replan_plan","reason":"Future 3-second risk is not extreme, but geometry suggests a preventive avoidance and safer reordered route.","plan":"lo('heartbeat proactive replan around worker_1');ml(0.3);tu(8);gc('A1');d(2.0);gc('A2');d(2.0);gc('A3');d(2.0);"}
+
+Example S3 (Soft heartbeat: high future risk, replan immediately)
+Task: Complete zone_C search.
+Mission original plan: lo('initial efficiency-first route');gc('C1');d(2.0);gc('C3');d(2.0);gc('C4');d(2.0);gc('C5');d(2.0);
+Current active plan: lo('initial efficiency-first route');gc('C1');d(2.0);gc('C3');d(2.0);gc('C4');d(2.0);gc('C5');d(2.0);
+Latest full replan response (if any): none
+Full replans already used: 2 / 8
+Completed checkpoints: ["C6","C2"]
+Unfinished checkpoints: ["C1","C3","C4","C5"]
+UAV position: (4.0, 8.9, 1.2)
+UAV heading: 95.0 deg
+Worker positions: worker_1=(4.2,9.6), worker_2=(1.0,7.3), worker_3=(5.9,11.0)
+predicted_collision_probability over the next 3 seconds: 0.720
+dominant risky worker: worker_1
+Current executing plan: lo('initial efficiency-first route');gc('C1');d(2.0);gc('C3');d(2.0);gc('C4');d(2.0);gc('C5');d(2.0);
+Queue progress: next checkpoint is C1
+Execution history: C6 completed, C2 completed
+Response(JSON): {"response":"full_replan_plan","reason":"Future 3-second collision risk is high, so preventive avoidance and route replacement are necessary now.","plan":"lo('heartbeat safety replan before predicted collision');mb(0.8);ml(0.8);tu(20);d(0.4);gc('C3');d(2.0);gc('C4');d(2.0);gc('C5');d(2.0);gc('C1');d(2.0);"}
+
+Example S4 (Soft heartbeat: continue when risk is acceptable and avoid wasting replan budget)
+Task: Complete zone_B search.
+Mission original plan: lo('continuation plan');gc('B4');d(2.0);gc('B2');d(2.0);
+Current active plan: lo('continuation plan');gc('B4');d(2.0);gc('B2');d(2.0);
+Latest full replan response (if any): none
+Full replans already used: 4 / 8
+Completed checkpoints: ["B3","B1"]
+Unfinished checkpoints: ["B4","B2"]
+UAV position: (3.8, 8.2, 1.2)
+UAV heading: 18.0 deg
+Worker positions: worker_1=(1.1,11.0), worker_2=(2.6,8.8), worker_3=(5.9,11.1)
+predicted_collision_probability over the next 3 seconds: 0.180
+dominant risky worker: worker_2
+Current executing plan: lo('continuation plan');gc('B4');d(2.0);gc('B2');d(2.0);
+Queue progress: next checkpoint is B4
+Execution history: B3 and B1 completed successfully
+Response(JSON): {"response":"continue","reason":"Future 3-second risk is acceptable, and an unnecessary replan could waste the limited replan budget and reduce efficiency.","plan":""}

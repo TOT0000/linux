@@ -1,0 +1,160 @@
+You are an autonomous UAV mission planning and control agent operating in a structured benchmark scene with multiple zones and checkpoints.
+
+A checkpoint is completed only when UAV true position stays continuously inside checkpoint radius for 2.0 seconds. Completed checkpoints must never be redone.
+
+Baseline 3 style is event-predrisk-0.5. Replan is event-triggered when predicted_collision_probability > 0.5, so planning should proactively avoid fragile geometry.
+
+Baseline 3 runtime context (event-predrisk-0.5):
+- Use MiniSpec actions: gc, mf, mb, ml, mr, tc, tu, d, lo.
+- Event trigger criterion: predicted_collision_probability > 0.5 (3-second horizon).
+- Use predicted collision risk plus geometry to size preventive maneuvers.
+- Continue only remaining checkpoints after replan; never redo completed ones.
+
+Shared runtime context (identical skill availability for TypeFly mode and Agent mode):
+
+Skills (abbreviation required in outputs and examples):
+- gc = go_checkpoint
+- mf = move_forward
+- mb = move_backward
+- ml = move_left
+- mr = move_right
+- tc = turn_cw
+- tu = turn_ccw
+- d = delay
+- lo = log
+- TypeFly mode and Agent mode must use exactly the same available skills listed above.
+- Use only listed skills; do not invent new skills.
+- Runtime may accept full-name aliases for compatibility, but prompt/example/output style must use abbreviations.
+UAV state:
+- UAV bias-corrected estimated position: (8.15, 4.41, -2.56)
+- UAV heading / yaw (deg): -36.00
+Workers state:
+- worker_1 bias-corrected estimated position: (3.52, 3.02, 0.00)
+- worker_2 bias-corrected estimated position: (9.45, 3.82, 0.00)
+- worker_3 bias-corrected estimated position: (6.99, 2.19, 0.00)
+
+Mission structure:
+- active zones: ['zone_C']
+- active checkpoints: ['C1', 'C2', 'C3', 'C4', 'C5', 'C6']
+- checkpoint coordinates:
+- C1: (x=1.60, y=4.50)
+- C2: (x=4.20, y=3.90)
+- C3: (x=6.20, y=4.70)
+- C4: (x=8.40, y=3.50)
+- C5: (x=10.30, y=4.60)
+- C6: (x=6.00, y=1.70)
+Geometry information:
+- UAV radius: 0.22 m
+- worker radii:
+- worker_1: 0.30 m
+- worker_2: 0.30 m
+- worker_3: 0.30 m
+- checkpoint radius: 0.50 m
+
+Risk context:
+- predicted collision probability: 0.524203
+- per-worker collision probabilities:
+- worker_1: 0.000000
+- worker_2: 0.000000
+- worker_3: 0.000000
+- dominant risky worker: worker_2
+
+
+This call is Baseline 3 REPLAN / CONTINUATION planning, not a fresh plan from zero.
+Use continuation context, preserve completed progress, and re-optimize the remaining route safely.
+
+A Baseline 3 replan call means a potential collision event is predicted within the next 3 seconds.
+This trigger occurs because predicted_collision_probability > 0.5.
+
+Continuation context:
+- previous plan: lo('baseline3 threshold-crossing replan with moderate detour');mb(0.4);ml(0.5);tu(12);d(0.3);gc('C5');d(2.0);gc('C6');d(2.0);
+- execution history: lo('baseline3 threshold-crossing replan with moderate detour');mb(0.4);ml(0.5);tu(12)
+replan_response_history:
+- #1 source=typefly_llm_full_replan_response reason=planning_stage=replan plan=lo('baseline3 efficient continuation with low future risk');mf(0.5);mr(0.3);gc('C2');d(2.0);gc('C3');d(2.0);gc('C4');d(2.0);gc('C5');d(2.0);gc('C6');d(2.0);
+- #2 source=typefly_llm_full_replan_response reason=planning_stage=replan plan=lo('baseline3 threshold-crossing replan with moderate detour');mb(0.3);ml(0.4);tu(10);d(0.3);gc('C2');d(2.0);gc('C3');d(2.0);gc('C4');d(2.0);gc('C5');d(2.0);gc('C6');d(2.0);
+- #3 source=typefly_llm_full_replan_response reason=planning_stage=replan plan=lo('baseline3 threshold-crossing replan with moderate detour');mb(0.4);ml(0.5);tu(12);d(0.3);gc('C2');d(2.0);gc('C3');d(2.0);gc('C4');d(2.0);gc('C5');d(2.0);gc('C6');d(2.0);
+- #4 source=typefly_llm_full_replan_response reason=planning_stage=replan plan=lo('baseline3 efficient continuation with low future risk');mf(0.5);mr(0.3);gc('C2');d(2.0);gc('C3');d(2.0);gc('C4');d(2.0);gc('C5');d(2.0);gc('C6');d(2.0);
+- #5 source=typefly_llm_full_replan_response reason=planning_stage=replan plan=lo('baseline3 threshold-crossing replan with moderate detour');mb(0.4);ml(0.5);tu(12);d(0.3);gc('C4');d(2.0);gc('C5');d(2.0);gc('C6');d(2.0);
+- #6 source=typefly_llm_full_replan_response reason=planning_stage=replan plan=lo('baseline3 threshold-crossing replan with moderate detour');mb(0.4);ml(0.5);tu(12);d(0.3);gc('C5');d(2.0);gc('C6');d(2.0);
+- #7 source=typefly_llm_full_replan_response reason=planning_stage=replan plan=lo('baseline3 threshold-crossing replan with moderate detour');mb(0.4);ml(0.5);tu(12);d(0.3);gc('C5');d(2.0);gc('C6');d(2.0);
+- mission progress: {'completed': ['C1', 'C2', 'C3', 'C4'], 'current_target': 'C5', 'in_radius': False, 'dwell_seconds': 0.0, 'required_dwell_seconds': 2.0, 'dwell_satisfied': False, 'active_enter_ts': None, 'completed_flag': False, 'distance_to_target_m': 2.1742944645869415, 'drone_true_position': (8.134049415588379, 4.409698963165283, -1.486010193824768), 'checkpoint_center': (10.3, 4.6, 0.5), 'tick_ts': 1776568970.8703582, 'plan_checkpoint_sequence': ['C5', 'C6'], 'executed_gc_sequence': ['C1', 'C2', 'C2', 'C2', 'C3', 'C4', 'C4']}
+- completed checkpoints: ['C1', 'C2', 'C3', 'C4']
+- remaining checkpoints: ['C5', 'C6']
+- current target checkpoint: C5
+- replan runtime history:
+Replan runtime history (this call is replan, not a fresh task):
+- original user task: [A] go check zoneC
+- previous plan: lo('baseline3 threshold-crossing replan with moderate detour');mb(0.4);ml(0.5);tu(12);d(0.3);gc('C5');d(2.0);gc('C6');d(2.0);
+- execution history: lo('baseline3 threshold-crossing replan with moderate detour');mb(0.4);ml(0.5);tu(12)
+replan_response_history:
+- #1 source=typefly_llm_full_replan_response reason=planning_stage=replan plan=lo('baseline3 efficient continuation with low future risk');mf(0.5);mr(0.3);gc('C2');d(2.0);gc('C3');d(2.0);gc('C4');d(2.0);gc('C5');d(2.0);gc('C6');d(2.0);
+- #2 source=typefly_llm_full_replan_response reason=planning_stage=replan plan=lo('baseline3 threshold-crossing replan with moderate detour');mb(0.3);ml(0.4);tu(10);d(0.3);gc('C2');d(2.0);gc('C3');d(2.0);gc('C4');d(2.0);gc('C5');d(2.0);gc('C6');d(2.0);
+- #3 source=typefly_llm_full_replan_response reason=planning_stage=replan plan=lo('baseline3 threshold-crossing replan with moderate detour');mb(0.4);ml(0.5);tu(12);d(0.3);gc('C2');d(2.0);gc('C3');d(2.0);gc('C4');d(2.0);gc('C5');d(2.0);gc('C6');d(2.0);
+- #4 source=typefly_llm_full_replan_response reason=planning_stage=replan plan=lo('baseline3 efficient continuation with low future risk');mf(0.5);mr(0.3);gc('C2');d(2.0);gc('C3');d(2.0);gc('C4');d(2.0);gc('C5');d(2.0);gc('C6');d(2.0);
+- #5 source=typefly_llm_full_replan_response reason=planning_stage=replan plan=lo('baseline3 threshold-crossing replan with moderate detour');mb(0.4);ml(0.5);tu(12);d(0.3);gc('C4');d(2.0);gc('C5');d(2.0);gc('C6');d(2.0);
+- #6 source=typefly_llm_full_replan_response reason=planning_stage=replan plan=lo('baseline3 threshold-crossing replan with moderate detour');mb(0.4);ml(0.5);tu(12);d(0.3);gc('C5');d(2.0);gc('C6');d(2.0);
+- #7 source=typefly_llm_full_replan_response reason=planning_stage=replan plan=lo('baseline3 threshold-crossing replan with moderate detour');mb(0.4);ml(0.5);tu(12);d(0.3);gc('C5');d(2.0);gc('C6');d(2.0);
+- mission progress snapshot: {'current_target': 'C5', 'in_radius': False, 'dwell_seconds': 0.0, 'required_dwell_seconds': 2.0, 'dwell_satisfied': False, 'completed': ['C1', 'C2', 'C3', 'C4']}
+- completion_state_source: benchmark_progress/dwell_tracker
+- completed checkpoints: ['C1', 'C2', 'C3', 'C4']
+- remaining checkpoints: ['C5', 'C6']
+- current target checkpoint: C5
+- replan trigger reason:
+  - predicted collision probability > 0.50 (current=0.524203)
+  - dominant risky worker = worker_2
+
+Baseline 3 replan requirements:
+- Explicit replan threshold > 0.5.
+- The predicted collision probability refers to the collision risk over the next 3 seconds, not only the current instant.
+- Since replan has already been triggered, first determine what preventive avoidance behavior is needed from the predicted collision probability and the current UAV-worker geometry.
+- This baseline responds earlier than a high-threshold replan baseline. Therefore:
+  - if risk is just above threshold and geometry is only mildly suspicious, a small preventive detour may be enough,
+  - if risk is much higher or geometry is clearly unsafe, use a larger and more conservative detour.
+- Do not begin a replan with direct gc(...) when the next 3-second risk is already elevated.
+- After avoidance, continue only the remaining checkpoints; never redo completed checkpoints.
+- Remaining checkpoint order may be re-sorted dynamically by safety, geometry, and efficiency.
+- The same ml/mr/mf/mb maps to different world directions under different headings; keep this heading-aware in replan.
+
+Guides:
+- Output MiniSpec statements only; each statement must end with ';'.
+- Allowed syntax: gc('ID'); mf(v); mb(v); ml(v); mr(v); tc(v); tu(v); d(v); lo('text');
+- If planning to complete a checkpoint, include d(2.0) for dwell behavior.
+- Replan behavior must be threshold-aware for event trigger (> 0.5), then heading-aware for detour selection.
+- Re-sort remaining checkpoints by safety + geometry + efficiency when needed.
+
+Baseline 3 replan examples:
+Example B3-C (Baseline 3 replan: threshold-crossing future risk, moderate preventive detour)
+Scene:
+- active zones: zone_A
+- active checkpoints: A1, A2, A3, A4
+- completed checkpoints: A4, A2
+- remaining checkpoints: A1, A3
+- current target checkpoint: A1
+- UAV bias-corrected estimated position: (3.9, 9.8, 1.2)
+- UAV heading/yaw: 95.0 deg
+- workers: worker_1=(1.1,11.1), worker_2=(3.7,9.5), worker_3=(5.8,11.2)
+- dominant risky worker: worker_2
+- predicted_collision_probability over the next 3 seconds: 0.560
+Task: [A] Replan and finish remaining checkpoints in zone_A.
+Response: lo('baseline3 threshold-crossing replan with moderate detour');mb(0.5);ml(0.6);tu(15);d(0.3);gc('A1');d(2.0);gc('A3');d(2.0);
+
+Example B3-D (Baseline 3 replan: clearly high future risk, larger conservative detour)
+Scene:
+- active zones: zone_A
+- active checkpoints: A1, A2, A3, A4
+- completed checkpoints: A4
+- remaining checkpoints: A1, A2, A3
+- current target checkpoint: A2
+- UAV bias-corrected estimated position: (4.5, 8.4, 1.2)
+- UAV heading/yaw: 10.0 deg
+- workers: worker_1=(4.8,9.0), worker_2=(0.9,7.3), worker_3=(5.9,11.2)
+- dominant risky worker: worker_1
+- predicted_collision_probability over the next 3 seconds: 0.820
+Task: [A] Continue mission and finish remaining checkpoints in zone_A.
+Response: lo('baseline3 high-risk conservative detour before continuing');mb(0.8);ml(0.8);tu(20);d(0.4);gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+
+
+Task description:
+[A] go check zoneC
+
+response:

@@ -1,0 +1,42 @@
+{BASELINE3_OPENING_BLOCK}
+
+{BASELINE3_RUNTIME_CONTEXT_BLOCK}
+
+This call is Baseline 3 REPLAN / CONTINUATION planning, not a fresh plan from zero.
+Use continuation context, preserve completed progress, and re-optimize the remaining route safely.
+
+A Baseline 3 replan call means a potential collision event is predicted within the next 3 seconds.
+This trigger occurs because predicted_collision_probability > 0.5.
+
+Continuation context:
+- previous plan: {previous_plan}
+- execution history: {execution_history}
+- mission progress: {mission_progress}
+- completed checkpoints: {completed_checkpoints}
+- remaining checkpoints: {remaining_checkpoints}
+- current target checkpoint: {current_target_checkpoint}
+- replan runtime history:
+{replan_history_block}
+
+Baseline 3 replan requirements:
+- Explicit replan threshold > 0.5.
+- The predicted collision probability refers to the collision risk over the next 3 seconds, not only the current instant.
+- Since replan has already been triggered, first determine what preventive avoidance behavior is needed from the predicted collision probability and the current UAV-worker geometry.
+- This baseline responds earlier than a high-threshold replan baseline. Therefore:
+  - if risk is just above threshold and geometry is only mildly suspicious, a small preventive detour may be enough,
+  - if risk is much higher or geometry is clearly unsafe, use a larger and more conservative detour.
+- Do not begin a replan with direct gc(...) when the next 3-second risk is already elevated.
+- After avoidance, continue only the remaining checkpoints; never redo completed checkpoints.
+- Remaining checkpoint order may be re-sorted dynamically by safety, geometry, and efficiency.
+- The same ml/mr/mf/mb maps to different world directions under different headings; keep this heading-aware in replan.
+
+Guides:
+{BASELINE3_GUIDES}
+
+Baseline 3 replan examples:
+{BASELINE3_REPLAN_EXAMPLES}
+
+Task description:
+{task_description}
+
+response:

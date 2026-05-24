@@ -1,0 +1,53 @@
+Example B2-S1 (Baseline 2 heartbeat: continue under low future risk)
+Task: Complete zone_A search.
+Mission original plan: lo('baseline2 low-risk efficient route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Current active plan: lo('baseline2 low-risk efficient route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Latest full replan response (if any): none
+Full replans already used: 0 / 8
+Completed checkpoints: ["A4"]
+Unfinished checkpoints: ["A1","A2","A3"]
+UAV position: (4.5, 8.3, 1.2)
+UAV heading: 10.0 deg
+Worker positions: worker_1=(1.1,11.0), worker_2=(0.9,7.2), worker_3=(5.8,11.1)
+predicted_collision_probability over the next 3 seconds: 0.120
+dominant risky worker: worker_3
+Current executing plan: lo('baseline2 low-risk efficient route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Queue progress: next checkpoint is A2
+Execution history: A4 completed successfully
+Response(JSON): {"response":"continue","reason":"Future 3-second risk is low and the current route remains acceptable.","plan":""}
+
+Example B2-S2 (Baseline 2 heartbeat: proactive replan under suspicious future geometry)
+Task: Complete zone_A search.
+Mission original plan: lo('baseline2 low-risk efficient route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Current active plan: lo('baseline2 low-risk efficient route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Latest full replan response (if any): none
+Full replans already used: 1 / 8
+Completed checkpoints: ["A4"]
+Unfinished checkpoints: ["A1","A2","A3"]
+UAV position: (4.4, 8.5, 1.2)
+UAV heading: 12.0 deg
+Worker positions: worker_1=(4.7,9.0), worker_2=(0.9,7.2), worker_3=(5.8,11.1)
+predicted_collision_probability over the next 3 seconds: 0.260
+dominant risky worker: worker_1
+Current executing plan: lo('baseline2 low-risk efficient route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Queue progress: next checkpoint is A2
+Execution history: A4 completed successfully
+Response(JSON): {"response":"full_replan_plan","reason":"Future risk is not extreme, but the combination of probability and geometry justifies a preventive reroute before A2.","plan":"lo('baseline2 proactive heartbeat replan around worker_1');ml(0.3);tu(8);gc('A1');d(2.0);gc('A2');d(2.0);gc('A3');d(2.0);"}
+
+Example B2-S3 (Baseline 2 heartbeat: high future risk, replan immediately)
+Task: Complete zone_C search.
+Mission original plan: lo('baseline2 initial route');gc('C1');d(2.0);gc('C3');d(2.0);gc('C4');d(2.0);gc('C5');d(2.0);
+Current active plan: lo('baseline2 initial route');gc('C1');d(2.0);gc('C3');d(2.0);gc('C4');d(2.0);gc('C5');d(2.0);
+Latest full replan response (if any): none
+Full replans already used: 2 / 8
+Completed checkpoints: ["C6","C2"]
+Unfinished checkpoints: ["C1","C3","C4","C5"]
+UAV position: (4.0, 8.9, 1.2)
+UAV heading: 95.0 deg
+Worker positions: worker_1=(4.2,9.6), worker_2=(1.0,7.3), worker_3=(5.9,11.0)
+predicted_collision_probability over the next 3 seconds: 0.720
+dominant risky worker: worker_1
+Current executing plan: lo('baseline2 initial route');gc('C1');d(2.0);gc('C3');d(2.0);gc('C4');d(2.0);gc('C5');d(2.0);
+Queue progress: next checkpoint is C1
+Execution history: C6 completed, C2 completed
+Response(JSON): {"response":"full_replan_plan","reason":"Future 3-second collision risk is high, so preventive avoidance and route replacement are necessary now.","plan":"lo('baseline2 safety replan before predicted collision');mb(0.8);ml(0.8);tu(20);d(0.4);gc('C3');d(2.0);gc('C4');d(2.0);gc('C5');d(2.0);gc('C1');d(2.0);"}

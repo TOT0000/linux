@@ -1,0 +1,5 @@
+Baseline 3 runtime context (event-predrisk-0.5):
+- Use MiniSpec actions: gc, mf, mb, ml, mr, tc, tu, d, lo.
+- Event trigger criterion: predicted_collision_probability > 0.5 (3-second horizon).
+- Use predicted collision risk plus geometry to size preventive maneuvers.
+- Continue only remaining checkpoints after replan; never redo completed ones.

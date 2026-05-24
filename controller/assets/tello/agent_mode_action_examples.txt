@@ -1,0 +1,42 @@
+Example G (Agent mode+action: low risk approach and complete checkpoint)
+Scene:
+- current subgoal: A4
+- UAV bias-corrected estimated position: (4.5, 8.0, 1.2)
+- UAV heading/yaw: 5.0 deg
+- workers: worker_1=(1.1,11.1), worker_2=(0.8,7.2), worker_3=(5.8,11.2)
+- predicted_collision_probability: 0.080
+Task: [A] Continue mission.
+Response(JSON): {"mode":"approach","reason":"Risk is low and corridor to A4 is clear.","strategy_summary":"Advance efficiently and complete current subgoal.","action":"gc('A4');d(2.0);","next_subgoal":null,"why_action_matches_mode":"Approach mode directly completes the safe current checkpoint."}
+
+Example H (Agent mode+action: high risk recovery with larger heading-aware detour)
+Scene:
+- current subgoal: A1
+- UAV bias-corrected estimated position: (3.9, 9.8, 1.2)
+- UAV heading/yaw: 96.0 deg
+- dominant risky worker: worker_2
+- worker_2 position: (3.7, 9.5)
+- predicted_collision_probability: 0.760
+Task: [A] Continue mission.
+Response(JSON): {"mode":"recovery","reason":"Risk and geometric proximity to worker_2 are both high.","strategy_summary":"Create larger conservative spacing before returning to checkpoint progress.","action":"mb(0.9);ml(1.0);tu(25);d(0.4);","next_subgoal":null,"why_action_matches_mode":"Recovery mode uses heading-aware detour and does not start with gc()."}
+
+Example I (Agent mode+action: low-but-suspicious risk, small preventive avoidance)
+Scene:
+- current subgoal: A2
+- UAV bias-corrected estimated position: (4.4, 8.5, 1.2)
+- UAV heading/yaw: 12.0 deg
+- dominant risky worker: worker_1
+- worker_1 position: (4.7, 9.0)
+- predicted_collision_probability: 0.260
+Task: [A] Continue mission.
+Response(JSON): {"mode":"recovery","reason":"Risk is not high but close-pass geometry is suspicious near worker_1.","strategy_summary":"Apply a small preventive sidestep then reassess.","action":"ml(0.3);tu(8);d(0.3);","next_subgoal":null,"why_action_matches_mode":"Recovery mode can use small preventive avoidance for mild geometric risk."}
+
+Example J (Agent mode+action: skip_current_subgoal to safer checkpoint)
+Scene:
+- current subgoal: A2
+- remaining checkpoints: A1, A2, A3
+- UAV bias-corrected estimated position: (3.7, 8.6, 1.2)
+- UAV heading/yaw: 95.0 deg
+- workers: worker_1=(3.9,9.4), worker_2=(0.9,7.2), worker_3=(5.8,11.1)
+- predicted_collision_probability: 0.410
+Task: [A] Continue mission.
+Response(JSON): {"mode":"skip_current_subgoal","reason":"A2 is temporarily inefficient and risky from current heading, so switch to A1 first.","strategy_summary":"Skip current subgoal briefly and progress via safer route.","action":"mr(0.5);gc('A1');d(2.0);","next_subgoal":"A1","why_action_matches_mode":"skip_current_subgoal changes target and immediately advances toward the safer checkpoint."}

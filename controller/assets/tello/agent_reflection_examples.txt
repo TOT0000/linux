@@ -1,0 +1,12 @@
+Example K (Agent reflection: high-risk case strategy memory)
+Scene:
+- current subgoal: A1
+- remaining checkpoints: A1, A3
+- UAV heading/yaw: 94.0 deg
+- dominant risky worker: worker_2
+- worker_2 near-pass geometry repeatedly blocks direct corridor to A1
+- predicted_collision_probability: 0.710
+Task: [A] Reflect on previous step and update strategy memory.
+Last action: mb(0.8);ml(0.8);tu(20);d(0.4);
+Last result: partial risk reduction, direct corridor still blocked.
+Response(JSON): {"failure_reason":"Direct approach corridor to A1 remained too close to worker_2 under current heading.","failed_approach_pattern":"Do not immediately retry direct gc('A1') from the same corridor.","recovery_hypothesis":"Use wider lateral spacing plus heading adjustment before re-approach.","strategy_summary":"When worker_2 dominates with high risk, enforce larger conservative detour before checkpoint approach.","next_route_decision":"reselect_subgoal","next_subgoal":"A3","reprioritized_subgoals":["A3","A1"]}

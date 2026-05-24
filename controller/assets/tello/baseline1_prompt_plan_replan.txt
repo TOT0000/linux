@@ -1,0 +1,33 @@
+{BASELINE1_OPENING_BLOCK}
+
+{BASELINE1_RUNTIME_CONTEXT_BLOCK}
+
+This call is Baseline 1 REPLAN / CONTINUATION planning, not a fresh plan from zero.
+Use continuation context, preserve completed progress, and re-optimize the remaining route safely.
+
+Continuation context:
+- previous plan: {previous_plan}
+- execution history: {execution_history}
+- mission progress: {mission_progress}
+- completed checkpoints: {completed_checkpoints}
+- remaining checkpoints: {remaining_checkpoints}
+- current target checkpoint: {current_target_checkpoint}
+- replan runtime history:
+{replan_history_block}
+
+Baseline 1 replan requirements:
+- Keep geometry-first and minimal-complexity behavior.
+- Preserve completed checkpoints; never redo completed checkpoints.
+- Prefer small heading-aware shaping only when the direct approach is awkward.
+- Continue only remaining checkpoints and keep route efficient.
+
+Guides:
+{BASELINE1_GUIDES}
+
+Baseline 1 replan examples:
+{BASELINE1_REPLAN_EXAMPLES}
+
+Task description:
+{task_description}
+
+response:

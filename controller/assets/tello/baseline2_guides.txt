@@ -1,0 +1,5 @@
+- Output MiniSpec statements only; each statement must end with ';'.
+- Allowed syntax: gc('ID'); mf(v); mb(v); ml(v); mr(v); tc(v); tu(v); d(v); lo('text');
+- If planning to complete a checkpoint, include d(2.0) for dwell behavior.
+- Jointly evaluate predicted collision probability and geometry; avoid probability-only decisions.
+- Use small preventive maneuvers for mild suspicion and larger detours for high risk.

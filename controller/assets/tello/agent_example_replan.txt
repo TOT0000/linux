@@ -1,0 +1,29 @@
+Example R1 (Agent continuation replan: clearly elevated future risk, conservative detour first)
+Scene:
+- active zones: zone_A
+- active checkpoints: A1, A2, A3, A4
+- completed checkpoints: A4, A2
+- remaining checkpoints: A1, A3
+- current target checkpoint: A1
+- UAV bias-corrected estimated position: (3.9, 9.8, 1.2)
+- UAV heading/yaw: 95.0 deg
+- workers: worker_1=(1.1,11.1), worker_2=(3.7,9.5), worker_3=(5.8,11.2)
+- dominant risky worker: worker_2
+- predicted_collision_probability over the next 3 seconds: 0.740
+Task: [A] Replan and finish remaining checkpoints in zone_A.
+Response: lo('agent replan high-risk conservative detour first');mb(0.9);ml(1.0);tu(25);d(0.4);gc('A1');d(2.0);gc('A3');d(2.0);
+
+Example R2 (Agent continuation replan: mildly elevated future risk, small preventive detour)
+Scene:
+- active zones: zone_A
+- active checkpoints: A1, A2, A3, A4
+- completed checkpoints: A4
+- remaining checkpoints: A1, A2, A3
+- current target checkpoint: A2
+- UAV bias-corrected estimated position: (4.5, 8.4, 1.2)
+- UAV heading/yaw: 10.0 deg
+- workers: worker_1=(4.8,9.0), worker_2=(0.9,7.3), worker_3=(5.9,11.2)
+- dominant risky worker: worker_1
+- predicted_collision_probability over the next 3 seconds: 0.710
+Task: [A] Continue mission and finish remaining checkpoints in zone_A.
+Response: lo('agent replan mild-risk preventive shift');ml(0.3);tu(8);gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);

@@ -1,0 +1,89 @@
+Example H1 (HardGate heartbeat: below threshold, continue)
+Task: Complete zone_A search.
+Mission original plan: lo('initial efficiency-first route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Current active plan: lo('initial efficiency-first route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Latest full replan response (if any): none
+Full replans already used: 0 / 8
+Completed checkpoints: ["A4"]
+Unfinished checkpoints: ["A1","A2","A3"]
+UAV position: (4.5, 8.3, 1.2)
+UAV heading: 10.0 deg
+Worker positions: worker_1=(1.1,11.0), worker_2=(0.9,7.2), worker_3=(5.8,11.1)
+predicted_collision_probability over the next 3 seconds: 0.140
+dominant risky worker: worker_3
+Current executing plan: lo('initial efficiency-first route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Queue progress: next checkpoint is A2
+Execution history: A4 completed successfully
+Response(JSON): {"response":"continue","reason":"The predicted future collision probability is below the hard gate and the current route remains acceptable.","plan":""}
+
+Example H2 (HardGate heartbeat: below threshold but proactive replan still allowed)
+Task: Complete zone_B search.
+Mission original plan: lo('initial plan');gc('B1');d(2.0);gc('B4');d(2.0);gc('B2');d(2.0);
+Current active plan: lo('initial plan');gc('B1');d(2.0);gc('B4');d(2.0);gc('B2');d(2.0);
+Latest full replan response (if any): none
+Full replans already used: 1 / 8
+Completed checkpoints: ["B3"]
+Unfinished checkpoints: ["B1","B4","B2"]
+UAV position: (3.9, 8.4, 1.2)
+UAV heading: 20.0 deg
+Worker positions: worker_1=(1.0,11.1), worker_2=(3.4,8.9), worker_3=(5.9,11.2)
+predicted_collision_probability over the next 3 seconds: 0.290
+dominant risky worker: worker_2
+Current executing plan: lo('initial plan');gc('B1');d(2.0);gc('B4');d(2.0);gc('B2');d(2.0);
+Queue progress: next checkpoint is B1
+Execution history: B3 completed successfully
+Response(JSON): {"response":"full_replan_plan","reason":"The hard gate is not triggered, but geometry still suggests that a preventive replan is safer than continuing directly.","plan":"lo('heartbeat proactive replan before bottleneck closes');mr(0.4);tu(12);gc('B4');d(2.0);gc('B1');d(2.0);gc('B2');d(2.0);"}
+
+Example H3 (HardGate heartbeat: above threshold, must replan)
+Task: Complete zone_C search.
+Mission original plan: lo('initial efficiency-first route');gc('C1');d(2.0);gc('C3');d(2.0);gc('C4');d(2.0);gc('C5');d(2.0);
+Current active plan: lo('initial efficiency-first route');gc('C1');d(2.0);gc('C3');d(2.0);gc('C4');d(2.0);gc('C5');d(2.0);
+Latest full replan response (if any): none
+Full replans already used: 4 / 8
+Completed checkpoints: ["C6","C2"]
+Unfinished checkpoints: ["C1","C3","C4","C5"]
+UAV position: (4.0, 8.9, 1.2)
+UAV heading: 95.0 deg
+Worker positions: worker_1=(4.2,9.6), worker_2=(1.0,7.3), worker_3=(5.9,11.0)
+predicted_collision_probability over the next 3 seconds: 0.790
+dominant risky worker: worker_1
+Current executing plan: lo('initial efficiency-first route');gc('C1');d(2.0);gc('C3');d(2.0);gc('C4');d(2.0);gc('C5');d(2.0);
+Queue progress: next checkpoint is C1
+Execution history: C6 completed, C2 completed
+Response(JSON): {"response":"full_replan_plan","reason":"The predicted future collision probability exceeds 0.7, so a replan is mandatory even though only one full replan remains.","plan":"lo('hardgate replan after future collision threshold exceeded');mb(0.8);ml(0.8);tu(20);d(0.4);gc('C3');d(2.0);gc('C4');d(2.0);gc('C5');d(2.0);gc('C1');d(2.0);"}
+
+Example H4 (HardGate heartbeat: above threshold, direct continuation is forbidden)
+Task: Complete zone_A search.
+Mission original plan: lo('initial efficiency-first route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Current active plan: lo('initial efficiency-first route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Latest full replan response (if any): none
+Full replans already used: 2 / 8
+Completed checkpoints: ["A4"]
+Unfinished checkpoints: ["A1","A2","A3"]
+UAV position: (4.4, 8.5, 1.2)
+UAV heading: 12.0 deg
+Worker positions: worker_1=(4.6,8.9), worker_2=(0.9,7.2), worker_3=(5.8,11.1)
+predicted_collision_probability over the next 3 seconds: 0.740
+dominant risky worker: worker_1
+Current executing plan: lo('initial efficiency-first route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Queue progress: next checkpoint is A2
+Execution history: A4 completed successfully
+Response(JSON): {"response":"full_replan_plan","reason":"Because predicted future collision probability is above 0.7, continue is not allowed under hard gate mode.","plan":"lo('hardgate threshold replan near worker_1');ml(0.5);tu(15);gc('A1');d(2.0);gc('A2');d(2.0);gc('A3');d(2.0);"}
+
+Example H5 (HardGate heartbeat: below threshold and budget is limited, so avoid unnecessary replan)
+Task: Complete zone_B search.
+Mission original plan: lo('continuation plan');gc('B4');d(2.0);gc('B2');d(2.0);
+Current active plan: lo('continuation plan');gc('B4');d(2.0);gc('B2');d(2.0);
+Latest full replan response (if any): none
+Full replans already used: 4 / 8
+Completed checkpoints: ["B3","B1"]
+Unfinished checkpoints: ["B4","B2"]
+UAV position: (3.8, 8.2, 1.2)
+UAV heading: 18.0 deg
+Worker positions: worker_1=(1.1,11.0), worker_2=(2.6,8.8), worker_3=(5.9,11.1)
+predicted_collision_probability over the next 3 seconds: 0.180
+dominant risky worker: worker_2
+Current executing plan: lo('continuation plan');gc('B4');d(2.0);gc('B2');d(2.0);
+Queue progress: next checkpoint is B4
+Execution history: B3 and B1 completed successfully
+Response(JSON): {"response":"continue","reason":"Predicted future risk stays below the hard gate, and using the last remaining replan unnecessarily would reduce flexibility and efficiency.","plan":""}

@@ -1,0 +1,24 @@
+Example E (Agent decomposition: low risk, efficiency-first ordering)
+Scene:
+- active zones: zone_A
+- unfinished checkpoints: A1, A2, A3, A4
+- checkpoint coordinates: A1=(1.4,10.6), A2=(4.6,10.6), A3=(1.4,7.8), A4=(4.6,7.8)
+- UAV bias-corrected estimated position: (4.7, 8.0, 1.2)
+- UAV heading/yaw: 15.0 deg
+- workers: worker_1=(1.1,11.0), worker_2=(0.8,7.2), worker_3=(5.7,11.1)
+- predicted_collision_probability: 0.090
+Task: [A] Complete zone_A search.
+Response(JSON array): ["A4", "A2", "A1", "A3"]
+
+Example F (Agent decomposition: defer temporarily unfavorable checkpoint)
+Scene:
+- active zones: zone_A
+- unfinished checkpoints: A1, A2, A3, A4
+- UAV bias-corrected estimated position: (3.8, 8.7, 1.2)
+- UAV heading/yaw: 92.0 deg
+- workers: worker_1=(4.0,9.6), worker_2=(0.9,7.2), worker_3=(5.8,11.0)
+- dominant risky worker: worker_1
+- predicted_collision_probability: 0.350
+Task: [A] Complete zone_A search.
+Rationale: A2 is temporarily behind worker_1 with inefficient approach corridor from current heading, so defer A2.
+Response(JSON array): ["A4", "A1", "A3", "A2"]

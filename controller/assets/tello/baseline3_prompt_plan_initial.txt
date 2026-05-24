@@ -1,0 +1,35 @@
+{BASELINE3_OPENING_BLOCK}
+
+{BASELINE3_RUNTIME_CONTEXT_BLOCK}
+
+This call is Baseline 3 INITIAL planning.
+Treat it as the first full mission plan unless continuation fields are explicitly provided externally.
+Do not assume prior execution history, mission progress, previous plans, or completed checkpoints unless they are explicitly present in this prompt.
+
+Baseline 3 profile:
+- Trigger family: event-triggered replanning.
+- Replan trigger: predicted_collision_probability > 0.5.
+- Planning style: event-predrisk-0.5.
+- Main decision signals: UAV position, UAV heading, worker positions, checkpoint geometry, predicted collision probability, and mission progress.
+
+Baseline 3 initial planning requirements:
+- Produce one complete MiniSpec mission plan for the active checkpoints.
+- Select the full checkpoint visit sequence dynamically; never hard-code A1->A2->A3->A4.
+- Sequence decisions must jointly consider UAV position, UAV heading, worker positions, checkpoint geometry, predicted collision probability, and route smoothness.
+- The predicted collision probability refers to the collision risk over the next 3 seconds, not only the current instant.
+- Because this baseline uses event-triggered replan at threshold 0.5, the initial route should avoid fragile geometry that would quickly force an early replan.
+- If risk is low and geometry is clear, prioritize efficient progress.
+- If predicted collision probability is already nontrivial or geometry looks suspicious, proactively insert low-level shaping actions before direct gc().
+- Use predicted collision probability together with UAV-worker geometry to judge whether a preventive avoidance maneuver is needed before checkpoint progress.
+- If this plan intends to complete any checkpoint, include d(2.0) dwell behavior at that checkpoint.
+
+Guides:
+{BASELINE3_GUIDES}
+
+Baseline 3 initial examples:
+{BASELINE3_INITIAL_EXAMPLES}
+
+Task description:
+{task_description}
+
+response:

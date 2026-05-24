@@ -1,0 +1,24 @@
+Example B2-A (Baseline 2 initial: low future risk, efficiency-first ordering)
+Scene:
+- active zones: zone_A
+- active checkpoints: A1, A2, A3, A4
+- checkpoint coordinates: A1=(1.4,10.6), A2=(4.6,10.6), A3=(1.4,7.8), A4=(4.6,7.8)
+- UAV bias-corrected estimated position: (4.8, 8.1, 1.2)
+- UAV heading/yaw: 12.0 deg
+- workers: worker_1=(1.0,11.2), worker_2=(0.8,7.2), worker_3=(5.8,11.2)
+- predicted_collision_probability over the next 3 seconds: 0.120
+Task: [A] Complete zone_A search.
+Response: lo('baseline2 low-risk efficient route');gc('A4');d(2.0);gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+
+Example B2-B (Baseline 2 initial: moderate future risk, preventive shaping before progress)
+Scene:
+- active zones: zone_A
+- active checkpoints: A1, A2, A3, A4
+- checkpoint coordinates: A1=(1.4,10.6), A2=(4.6,10.6), A3=(1.4,7.8), A4=(4.6,7.8)
+- UAV bias-corrected estimated position: (3.9, 8.6, 1.2)
+- UAV heading/yaw: 88.0 deg
+- workers: worker_1=(4.1,9.4), worker_2=(0.8,7.2), worker_3=(5.7,11.1)
+- dominant risky worker: worker_1
+- predicted_collision_probability over the next 3 seconds: 0.280
+Task: [A] Complete zone_A search.
+Response: lo('baseline2 preventive shaping before A2');mr(0.3);tc(10);gc('A2');d(2.0);gc('A4');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);

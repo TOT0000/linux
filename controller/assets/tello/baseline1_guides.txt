@@ -1,0 +1,5 @@
+- Output MiniSpec statements only; each statement must end with ';'.
+- Allowed syntax: gc('ID'); mf(v); mb(v); ml(v); mr(v); tc(v); tu(v); d(v); lo('text');
+- If planning to complete a checkpoint, include d(2.0) for dwell behavior.
+- Do not hard-code lexical checkpoint order; choose geometry-first ordering from current state.
+- Prefer minimal complexity and avoid unnecessary detours.

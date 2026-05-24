@@ -1,0 +1,30 @@
+{shared_opening_block}
+
+{shared_runtime_context_block}
+
+This call is TypeFly INITIAL / NORMAL planning, not continuation.
+Treat it as the first full mission plan unless continuation fields are explicitly provided externally.
+Do not assume prior execution history, mission progress, previous plans, or completed checkpoints unless they are explicitly present in this prompt.
+
+TypeFly initial planning requirements:
+- Produce one complete MiniSpec mission plan for the active checkpoints.
+- Select the full checkpoint visit sequence dynamically; never hard-code A1->A2->A3->A4.
+- Sequence decisions must jointly consider UAV position, UAV heading, worker positions, checkpoint geometry, predicted collision probability, and route smoothness.
+- The predicted collision probability refers to the collision risk over the next 3 seconds, not only the current instant.
+- If risk is low and geometry is clear, prioritize efficient progress.
+- If geometry suggests potential conflict, proactive low-level shaping actions are allowed even when probability is not high.
+- Low-level skills are not emergency-only; use them proactively to shape safer and more controllable approach corridors.
+- Because gc() path details are not controllable, if direct gc() appears risky, insert heading-aware low-level adjustments before gc().
+- Use predicted collision probability together with UAV-worker geometry to judge whether a preventive avoidance maneuver is needed before checkpoint progress.
+- If this plan intends to complete any checkpoint, include d(2.0) dwell behavior at that checkpoint.
+
+Guides:
+{guides}
+
+TypeFly initial examples:
+{typefly_initial_examples}
+
+Task description:
+{task_description}
+
+response:

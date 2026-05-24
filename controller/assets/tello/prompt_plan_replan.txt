@@ -1,0 +1,42 @@
+{shared_opening_block}
+
+{shared_runtime_context_block}
+
+This call is TypeFly REPLAN / CONTINUATION planning, not a fresh plan from zero.
+Use continuation context, preserve completed progress, and re-optimize the remaining route safely.
+
+A TypeFly replan call means a potential collision event is predicted within the next 3 seconds.
+This trigger occurs because predicted_collision_probability has reached or exceeded 0.7.
+
+Continuation context:
+- previous plan: {previous_plan}
+- execution history: {execution_history}
+- mission progress: {mission_progress}
+- completed checkpoints: {completed_checkpoints}
+- remaining checkpoints: {remaining_checkpoints}
+- current target checkpoint: {current_target_checkpoint}
+- replan runtime history:
+{replan_history_block}
+
+TypeFly replan requirements:
+- Explicit replan threshold = 0.7.
+- The predicted collision probability refers to the collision risk over the next 3 seconds, not only the current instant.
+- Since replan has already been triggered, first determine what preventive avoidance behavior is needed from the predicted collision probability and the current UAV-worker geometry.
+- Choose avoidance amplitude according to severity.
+- If the predicted collision probability is only mildly above threshold, a small preventive detour may be enough.
+- If the predicted collision probability is much higher or the geometry is clearly unsafe, use a larger and more conservative detour.
+- Do not begin a replan with direct gc(...) when the future 3-second risk is already elevated.
+- After avoidance, continue only the remaining checkpoints; never redo completed checkpoints.
+- Remaining checkpoint order may be re-sorted dynamically by safety, geometry, and efficiency.
+- The same ml/mr/mf/mb maps to different world directions under different headings; keep this heading-aware in replan.
+
+Guides:
+{guides}
+
+TypeFly replan examples:
+{typefly_replan_examples}
+
+Task description:
+{task_description}
+
+response:

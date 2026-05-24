@@ -1,0 +1,72 @@
+Example H1 (Agent heartbeat: continue under low future risk, no mature replan feedback yet)
+Task: Complete zone_A search.
+Mission original plan: lo('agent initial low-risk efficient route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Current active plan: lo('agent initial low-risk efficient route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Latest full replan response (if any): none
+Full replans already used: 0 / 8
+Completed checkpoints: ["A4"]
+Unfinished checkpoints: ["A1","A2","A3"]
+UAV position: (4.5, 8.3, 1.2)
+UAV heading: 10.0 deg
+Worker positions: worker_1=(1.1,11.0), worker_2=(0.9,7.2), worker_3=(5.8,11.1)
+predicted_collision_probability over the next 3 seconds: 0.120
+dominant risky worker: worker_3
+Current executing plan: lo('agent initial low-risk efficient route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Queue progress: next checkpoint is A2
+Execution history: A4 completed successfully
+Matured replan feedback packets: []
+Response(JSON): {"response":"continue","reason":"Future 3-second risk is low, geometry is clear, and there is no evidence requiring a preventive replan now.","plan":""}
+
+Example H2 (Agent heartbeat: prior similar replan looked unnecessary, so continue instead of over-reacting)
+Task: Complete zone_A search.
+Mission original plan: lo('agent initial route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Current active plan: lo('agent initial route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Latest full replan response (if any): lo('agent mild-risk shift');ml(0.3);tu(8);gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Full replans already used: 1 / 8
+Completed checkpoints: ["A4"]
+Unfinished checkpoints: ["A1","A2","A3"]
+UAV position: (4.4, 8.5, 1.2)
+UAV heading: 12.0 deg
+Worker positions: worker_1=(4.7,9.0), worker_2=(0.9,7.2), worker_3=(5.8,11.1)
+predicted_collision_probability over the next 3 seconds: 0.250
+dominant risky worker: worker_1
+Current executing plan: lo('agent initial route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Queue progress: next checkpoint is A2
+Execution history: A4 completed successfully
+Matured replan feedback packets:
+[
+  {
+    "decision_context": {"predicted_collision_probability": 0.240, "dominant_risky_worker": "worker_1", "current_target_checkpoint": "A2"},
+    "chosen_action": {"raw_llm_response": "lo('agent mild-risk shift');ml(0.3);tu(8);gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);"},
+    "outcome_delta": {"risk_delta": -0.010, "closest_worker_distance_delta": 0.030, "near_miss_delta": 0, "collision_delta": 0, "completed_checkpoint_delta": 0, "elapsed_time_delta": 5.0, "execution_progress_observed": true},
+    "evaluator_feedback": {"necessity_assessment": "possibly_unnecessary", "outcome_assessment": "little_change", "timing_suggestion": "do not replan too easily under mild risk", "content_suggestion": "avoid repeating the same small detour for weak evidence", "next_time_hint": "continue unless geometry becomes clearly tighter", "confidence": "medium"}
+  }
+]
+Response(JSON): {"response":"continue","reason":"A prior similar mild-risk replan produced little change and was judged possibly unnecessary, so continuing is better unless geometry worsens further.","plan":""}
+
+Example H3 (Agent heartbeat: prior similar mild detour was insufficient, so replan with stronger avoidance)
+Task: Complete zone_C search.
+Mission original plan: lo('agent initial route');gc('C1');d(2.0);gc('C3');d(2.0);gc('C4');d(2.0);gc('C5');d(2.0);
+Current active plan: lo('agent initial route');gc('C1');d(2.0);gc('C3');d(2.0);gc('C4');d(2.0);gc('C5');d(2.0);
+Latest full replan response (if any): lo('agent previous mild detour');ml(0.3);tu(8);gc('C1');d(2.0);gc('C3');d(2.0);gc('C4');d(2.0);gc('C5');d(2.0);
+Full replans already used: 2 / 8
+Completed checkpoints: ["C6","C2"]
+Unfinished checkpoints: ["C1","C3","C4","C5"]
+UAV position: (4.0, 8.9, 1.2)
+UAV heading: 95.0 deg
+Worker positions: worker_1=(4.2,9.6), worker_2=(1.0,7.3), worker_3=(5.9,11.0)
+predicted_collision_probability over the next 3 seconds: 0.690
+dominant risky worker: worker_1
+Current executing plan: lo('agent initial route');gc('C1');d(2.0);gc('C3');d(2.0);gc('C4');d(2.0);gc('C5');d(2.0);
+Queue progress: next checkpoint is C1
+Execution history: C6 completed, C2 completed
+Matured replan feedback packets:
+[
+  {
+    "decision_context": {"predicted_collision_probability": 0.640, "dominant_risky_worker": "worker_1", "current_target_checkpoint": "C1"},
+    "chosen_action": {"raw_llm_response": "lo('agent previous mild detour');ml(0.3);tu(8);gc('C1');d(2.0);gc('C3');d(2.0);gc('C4');d(2.0);gc('C5');d(2.0);"},
+    "outcome_delta": {"risk_delta": -0.020, "closest_worker_distance_delta": 0.040, "near_miss_delta": 1, "collision_delta": 0, "completed_checkpoint_delta": 0, "elapsed_time_delta": 5.0, "execution_progress_observed": true},
+    "evaluator_feedback": {"necessity_assessment": "likely_necessary", "outcome_assessment": "little_change", "timing_suggestion": "replan is justified in this risk regime", "content_suggestion": "use a larger and more conservative detour than the previous mild shift", "next_time_hint": "do not repeat the same small detour when worker_1 is still close in front of the path", "confidence": "high"}
+  }
+]
+Response(JSON): {"response":"full_replan_plan","reason":"A prior similar replan was justified but the mild detour produced little safety improvement, so a stronger conservative reroute is needed now.","plan":"lo('agent stronger safety replan after ineffective mild detour');mb(0.8);ml(0.8);tu(20);d(0.4);gc('C3');d(2.0);gc('C4');d(2.0);gc('C5');d(2.0);gc('C1');d(2.0);"}

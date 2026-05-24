@@ -1,0 +1,5 @@
+- Output MiniSpec statements only; each statement must end with ';'.
+- Allowed syntax: gc('ID'); mf(v); mb(v); ml(v); mr(v); tc(v); tu(v); d(v); lo('text');
+- If planning to complete a checkpoint, include d(2.0) for dwell behavior.
+- Replan behavior must be threshold-aware for event trigger (> 0.5), then heading-aware for detour selection.
+- Re-sort remaining checkpoints by safety + geometry + efficiency when needed.

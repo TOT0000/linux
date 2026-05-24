@@ -1,0 +1,5 @@
+Baseline 1 runtime context (periodic-minimal):
+- Use only these MiniSpec actions: gc, mf, mb, ml, mr, tc, tu, d, lo.
+- Keep checkpoint ordering dynamic based on geometry and progress.
+- Use heading-aware shaping only when direct gc() would be awkward or tight.
+- Favor smooth, efficient continuation when route geometry remains acceptable.

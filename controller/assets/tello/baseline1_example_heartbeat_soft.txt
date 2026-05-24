@@ -1,0 +1,47 @@
+Example B1-S1 (Baseline 1 heartbeat: continue when geometry remains acceptable)
+Task: Complete zone_A search.
+Mission original plan: lo('baseline1 geometry-first efficient route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Current active plan: lo('baseline1 geometry-first efficient route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Latest full replan response (if any): none
+Full replans already used: 0 / 8
+Completed checkpoints: ["A4"]
+Unfinished checkpoints: ["A1","A2","A3"]
+UAV position: (4.5, 8.3, 1.2)
+UAV heading: 10.0 deg
+Worker positions: worker_1=(1.1,11.0), worker_2=(0.9,7.2), worker_3=(5.8,11.1)
+Current executing plan: lo('baseline1 geometry-first efficient route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Queue progress: next checkpoint is A2
+Execution history: A4 completed successfully
+Response(JSON): {"response":"continue","reason":"The current route is still geometrically acceptable from the current heading and no clear reroute is needed.","plan":""}
+
+Example B1-S2 (Baseline 1 heartbeat: replan because next approach has awkward close-pass geometry)
+Task: Complete zone_A search.
+Mission original plan: lo('baseline1 geometry-first efficient route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Current active plan: lo('baseline1 geometry-first efficient route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Latest full replan response (if any): none
+Full replans already used: 1 / 8
+Completed checkpoints: ["A4"]
+Unfinished checkpoints: ["A1","A2","A3"]
+UAV position: (4.4, 8.5, 1.2)
+UAV heading: 12.0 deg
+Worker positions: worker_1=(4.7,9.0), worker_2=(0.9,7.2), worker_3=(5.8,11.1)
+Current executing plan: lo('baseline1 geometry-first efficient route');gc('A2');d(2.0);gc('A1');d(2.0);gc('A3');d(2.0);
+Queue progress: next checkpoint is A2
+Execution history: A4 completed successfully
+Response(JSON): {"response":"full_replan_plan","reason":"The next direct approach has awkward close-pass geometry around worker_1, so a small geometry-first reroute is safer.","plan":"lo('baseline1 geometry-based heartbeat replan');ml(0.3);tu(8);gc('A1');d(2.0);gc('A2');d(2.0);gc('A3');d(2.0);"}
+
+Example B1-S3 (Baseline 1 heartbeat: continue to avoid wasting replan budget when route is still workable)
+Task: Complete zone_B search.
+Mission original plan: lo('baseline1 continuation plan');gc('B4');d(2.0);gc('B2');d(2.0);
+Current active plan: lo('baseline1 continuation plan');gc('B4');d(2.0);gc('B2');d(2.0);
+Latest full replan response (if any): none
+Full replans already used: 7 / 8
+Completed checkpoints: ["B3","B1"]
+Unfinished checkpoints: ["B4","B2"]
+UAV position: (3.8, 8.2, 1.2)
+UAV heading: 18.0 deg
+Worker positions: worker_1=(1.1,11.0), worker_2=(2.6,8.8), worker_3=(5.9,11.1)
+Current executing plan: lo('baseline1 continuation plan');gc('B4');d(2.0);gc('B2');d(2.0);
+Queue progress: next checkpoint is B4
+Execution history: B3 and B1 completed successfully
+Response(JSON): {"response":"continue","reason":"The remaining geometry is still workable, so preserving replan budget is better than replacing the route now.","plan":""}
