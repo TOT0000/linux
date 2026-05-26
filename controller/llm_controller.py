@@ -2415,6 +2415,12 @@ class LLMController():
     def apply_baseline_scene(self):
         scene = self.get_baseline_scene()
         print_t(worker_mode_summary_log())
+        if scene.id == "SCENE4":
+            self.active_objective_set = {
+                "active_zone_ids": ["zone_C"],
+                "active_checkpoint_ids": [cid for cid in BENCHMARK_CHECKPOINT_ORDER if str(cid).startswith("C")],
+                "source": "baseline_scene4_zone_c",
+            }
         provider = getattr(self, "state_provider", None)
         drone = getattr(self, "drone", None)
         repositioned = False
