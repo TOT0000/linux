@@ -239,7 +239,7 @@ def compute_obstacle_envelope_states(scene: BaselineScene, now_s: float) -> List
             else:
                 # Keep worker_2 exactly at the manual-control scene default/static location.
                 gt_x, gt_y = (float(obstacle.gt_x), float(obstacle.gt_y))
-        elif scene.id == "SCENE3":
+        elif scene.id in {"SCENE3", "SCENE4"}:
             gt_x, gt_y = (float(obstacle.gt_x), float(obstacle.gt_y))
         else:
             gt_x, gt_y = _scripted_worker_gt_xy(obstacle.id, now_s, fallback_xy=(obstacle.gt_x, obstacle.gt_y))
@@ -592,6 +592,24 @@ BASELINE_SCENES: Dict[str, BaselineScene] = {
             StaticObstacle("worker_3", 7.0, 2.2, cov_xy=((0.010, 0.000), (0.000, 0.008))),
         ),
         notes="scene3 based on SCENE_FIXED_W13_MANUAL_W2 with worker true positions overridden.",
+    ),
+    "SCENE4": BaselineScene(
+        id="SCENE4",
+        drone_initial_pose=(1.0, 1.0, -1.5),
+        drone_initial_yaw_rad=0.0,
+        user_position=(10.8, 10.2, 0.0),
+        user_initial_yaw_rad=-2.0,
+        task_points=(
+            TaskPoint("A", 1.4, 10.6, -1.5),
+            TaskPoint("B", 7.4, 10.6, -1.5),
+            TaskPoint("C", 1.7, 4.2, -1.5),
+        ),
+        obstacles=(
+            StaticObstacle("worker_1", 3.5, 3.0, cov_xy=((0.010, 0.000), (0.000, 0.008))),
+            StaticObstacle("worker_2", 9.5, 3.8, cov_xy=((0.010, 0.000), (0.000, 0.008))),
+            StaticObstacle("worker_3", 7.0, 2.2, cov_xy=((0.010, 0.000), (0.000, 0.008))),
+        ),
+        notes="scene4 mirrors SCENE3 obstacle configuration for C-zone-focused 3D visualization.",
     ),
     "SCENE_1_CLEAR_PATH": BaselineScene(
         id="SCENE_1_CLEAR_PATH",
