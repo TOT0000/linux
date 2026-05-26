@@ -115,6 +115,9 @@ class TypeFly:
         self.selected_worker_turn_step = 15.0
         self.drone_icon = self._load_icon_asset("drone.png")
         self.obstacle_icon = self._load_icon_asset("obstacle.png")
+        # Backward-compatible aliases used by alternate/older rendering paths.
+        self.drone_side_icon = self.drone_icon
+        self.obstacle_side_icon = self.obstacle_icon
 
         # 狀態資料
         self.anchor_count = 0
