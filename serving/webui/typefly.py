@@ -15,7 +15,6 @@ matplotlib.use('Agg')  # 非互動後端避免開啟GUI視窗
 import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse, Circle, Arc
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
-from mpl_toolkits.mplot3d import proj3d
 from PIL import Image
 from threading import Thread
 from flask import Flask, Response, request
@@ -115,7 +114,6 @@ class TypeFly:
         self.selected_worker_move_step = 0.5
         self.selected_worker_turn_step = 15.0
         self.drone_icon = self._load_icon_asset("drone.png")
-        self.drone_side_icon = self._load_icon_asset("technology.png")
         self.obstacle_icon = self._load_icon_asset("obstacle.png")
 
         # 狀態資料
@@ -305,12 +303,12 @@ class TypeFly:
             print_debug(f"[UI-PLOT] icon load failed for {icon_path}: {exc}")
             return None
 
-    def _draw_icon_or_circle(self, ax, center_xy, radius_m, icon_rgba, fallback_kwargs, label_text):
+    def _draw_icon_or_circle(self, ax, center_xy, radius_m, icon_rgba, fallback_kwargs, label_text, x_span_m):
         x, y = float(center_xy[0]), float(center_xy[1])
         rendered_icon = False
         if icon_rgba is not None:
             try:
-                target_diameter_px = 2.0 * float(radius_m) * float(ax.bbox.width) / max(ax.get_xlim()[1] - ax.get_xlim()[0], 1e-6)
+                target_diameter_px = 2.0 * float(radius_m) * float(ax.bbox.width) / max(float(x_span_m), 1e-6)
                 zoom = target_diameter_px / float(icon_rgba.shape[1])
                 if zoom > 0:
                     icon = OffsetImage(icon_rgba, zoom=zoom)
@@ -1175,6 +1173,8 @@ class TypeFly:
     def _render_xy_view(self, snapshot, xlim, ylim, title, figsize=(5, 4), show_legend=True, show_error_ellipse=False, show_raw_estimate=False):
         positions = self._extract_ui_positions(snapshot)
         fig_xy, ax_xy = plt.subplots(figsize=figsize)
+        ax_xy.set_xlim(*xlim)
+        ax_xy.set_ylim(*ylim)
         ax_xy.add_patch(plt.Rectangle((0, 0), WORKSPACE_SIZE_M, WORKSPACE_SIZE_M, fill=False, edgecolor="#263238", linewidth=1.8))
         ax_xy.plot([6, 6], [6, 12], color="#5F6368", linewidth=1.2)
         ax_xy.plot([0, 12], [6, 6], color="#5F6368", linewidth=1.2)
@@ -1195,7 +1195,6 @@ class TypeFly:
             ax_xy.add_patch(Circle((cp.x, cp.y), CHECKPOINT_RADIUS_M, fill=False, edgecolor=color, linewidth=1.5))
             if cid == current_target and active_progress > 0:
                 ax_xy.add_patch(Arc((cp.x, cp.y), width=2.0 * (CHECKPOINT_RADIUS_M + 0.08), height=2.0 * (CHECKPOINT_RADIUS_M + 0.08), theta1=90, theta2=90 - (360.0 * active_progress), edgecolor="#FF9800", linewidth=2.0))
-            ax_xy.scatter([cp.x], [cp.y], c=color, s=12)
             ax_xy.text(cp.x + 0.08, cp.y + 0.08, cid, fontsize=8, color="#37474F")
 
         drone_gt = positions.get("drone_gt")
@@ -1229,6 +1228,7 @@ class TypeFly:
                 self.drone_icon,
                 {"fill": False, "edgecolor": "#0B57D0", "linewidth": 2.0},
                 "UAV",
+                xlim[1] - xlim[0],
             )
         if drone_est is not None:
             ax_xy.add_patch(Circle((drone_est[0], drone_est[1]), UAV_RADIUS_M, fill=False, edgecolor="#8AB4F8", linewidth=1.6, linestyle="--", label="UAV bias-corrected"))
@@ -1240,16 +1240,18 @@ class TypeFly:
             gt_xy = worker.get("gt_xy")
             est_xy = worker.get("est_xy_bias_corrected")
             ui_xy = worker.get("ui_xy") or est_xy or gt_xy
+            obstacle_xy = gt_xy or ui_xy
             wid = worker.get("id")
-            if ui_xy is not None:
+            if obstacle_xy is not None:
                 obstacle_label = str(wid).replace("worker_", "obstacle_")
                 self._draw_icon_or_circle(
                     ax_xy,
-                    ui_xy,
+                    obstacle_xy,
                     WORKER_RADIUS_M,
                     self.obstacle_icon,
                     {"fill": False, "edgecolor": "#CE93D8", "linewidth": 1.3, "linestyle": "--"},
                     obstacle_label,
+                    xlim[1] - xlim[0],
                 )
             if gt_xy is not None and ui_xy is not None:
                 ax_xy.plot([gt_xy[0], ui_xy[0]], [gt_xy[1], ui_xy[1]], color="#8E24AA", linewidth=0.7, alpha=0.8)
@@ -1286,8 +1288,6 @@ class TypeFly:
         if len(updated_path) >= 2:
             ax_xy.plot([p[0] for p in updated_path], [p[1] for p in updated_path], color="#1565C0", linestyle="-", linewidth=1.7, label="Current path")
 
-        ax_xy.set_xlim(*xlim)
-        ax_xy.set_ylim(*ylim)
         ax_xy.set_xlabel("X (m)")
         ax_xy.set_ylabel("Y (m)")
         ax_xy.set_title(title)
