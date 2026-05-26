@@ -593,6 +593,27 @@ BASELINE_SCENES: Dict[str, BaselineScene] = {
         ),
         notes="scene3 based on SCENE_FIXED_W13_MANUAL_W2 with worker true positions overridden.",
     ),
+    "SCENE4": BaselineScene(
+        id="SCENE4",
+        drone_initial_pose=(1.0, 1.0, -1.5),
+        drone_initial_yaw_rad=0.0,
+        user_position=(10.8, 10.2, 0.0),
+        user_initial_yaw_rad=-2.0,
+        task_points=(
+            TaskPoint("C1", 1.6, 4.5, -1.5),
+            TaskPoint("C2", 4.2, 3.9, -1.5),
+            TaskPoint("C3", 6.2, 4.7, -1.5),
+            TaskPoint("C4", 8.4, 3.5, -1.5),
+            TaskPoint("C5", 10.3, 4.6, -1.5),
+            TaskPoint("C6", 6.0, 1.7, -1.5),
+        ),
+        obstacles=(
+            StaticObstacle("worker_1", 3.5, 3.0, cov_xy=((0.010, 0.000), (0.000, 0.008))),
+            StaticObstacle("worker_2", 9.5, 3.8, cov_xy=((0.010, 0.000), (0.000, 0.008))),
+            StaticObstacle("worker_3", 7.0, 2.2, cov_xy=((0.010, 0.000), (0.000, 0.008))),
+        ),
+        notes="SCENE4 focuses on zone_C checkpoints (C1-C6) and reuses SCENE3 obstacle setup.",
+    ),
     "SCENE_1_CLEAR_PATH": BaselineScene(
         id="SCENE_1_CLEAR_PATH",
         drone_initial_pose=(1.0, 1.5, -1.5),
