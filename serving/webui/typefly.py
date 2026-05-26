@@ -48,6 +48,16 @@ from controller.benchmark_layout import (
 from gradio import Timer
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+UAV_3D_ALTITUDE_M = 3.0
+OBSTACLE_CYLINDER_RADIUS_M = 0.3
+OBSTACLE_CYLINDER_HEIGHT_M = 5.0
+C_ZONE_3D_AX_POSITION = [0.00, 0.00, 0.90, 0.92]
+C_ZONE_3D_DPI = 140
+C_ZONE_3D_PAD_INCHES = 0.02
+C_ZONE_3D_CAMERA_DIST = 2
+UAV_3D_ICON_ZOOM = 0.10
+C_ZONE_3D_VIEW_ELEV_DEG = 40
+C_ZONE_3D_VIEW_AZIM_DEG = -90
 
 
 class TypeFly:
@@ -201,6 +211,7 @@ class TypeFly:
                             "SCENE1",
                             "SCENE2",
                             "SCENE3",
+                            "SCENE4",
                         ) if sid in BASELINE_SCENES
                     ]
                     self.baseline_scene_selector = gr.Dropdown(
@@ -972,6 +983,7 @@ class TypeFly:
     def render_anchor_3d_plot(self):
         fig = plt.figure(figsize=(5.2, 4.2))
         ax = fig.add_subplot(111, projection='3d')
+        ax.set_position(C_ZONE_3D_AX_POSITION)
         anchors = self.anchor_provider.get_anchor_positions()
         ax.scatter(anchors[:, 0], anchors[:, 1], anchors[:, 2], c="#1A73E8", s=42, depthshade=False)
         for idx, (x, y, z) in enumerate(anchors, start=1):
@@ -988,8 +1000,10 @@ class TypeFly:
         ax.set_ylabel("Y (m)")
         ax.set_zlabel("Z (m)")
         ax.set_title("Anchor Layout (3D)")
+        ax.view_init(elev=C_ZONE_3D_VIEW_ELEV_DEG, azim=C_ZONE_3D_VIEW_AZIM_DEG)
+        ax.dist = C_ZONE_3D_CAMERA_DIST
         buf = io.BytesIO()
-        fig.savefig(buf, format='png', bbox_inches='tight')
+        fig.savefig(buf, format='png', bbox_inches='tight', dpi=C_ZONE_3D_DPI, pad_inches=C_ZONE_3D_PAD_INCHES)
         buf.seek(0)
         plt.close(fig)
         return Image.open(buf)
